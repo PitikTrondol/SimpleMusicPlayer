@@ -13,7 +13,7 @@
         android:layout_height="50dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlist"
@@ -22,14 +22,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_bar"
-        app:layout_constraintBottom_toTopOf="@+id/controller"/>
+        app:layout_constraintBottom_toTopOf="@+id/controller_container"/>
 
-    <androidx.media3.ui.PlayerView
-        android:id="@+id/controller"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/controller_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent">
+        <androidx.media3.ui.LegacyPlayerControlView
+            android:id="@+id/controller"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:show_timeout="0"
+            app:show_fastforward_button="false"
+            app:show_rewind_button="false" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
