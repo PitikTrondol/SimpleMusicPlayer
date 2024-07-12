@@ -36,7 +36,7 @@
             android:ellipsize="end"
             android:textSize="14sp"
             android:textStyle="bold"
-            tools:text="Sepasang Kekasih yang Pertama Bercinta di Luar Angkasa" />
+            tools:text="Sepasang Kekasih yang.." />
 
         <TextView
             android:id="@+id/song_artist"
@@ -53,5 +53,16 @@
             tools:text="Starlit Carousel" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/song_sound_wave"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:contentDescription="@string/app_name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/soundwave_placeholder" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
