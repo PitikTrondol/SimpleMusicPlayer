@@ -1,6 +1,7 @@
 package anridiaf.playground.simplemusicplayer
 
 import android.app.Application
+import anridiaf.playground.simplemusicplayer.presenter.presenterModule
 import anridiaf.playground.simplemusicplayer.sources.dataSourceModule
 import anridiaf.playground.simplemusicplayer.utils.utilModule
 import org.koin.android.ext.koin.androidContext
@@ -17,7 +18,8 @@ class MusicPlayerApp: Application() {
             modules(
                 listOf(
                     utilModule,
-                    dataSourceModule
+                    dataSourceModule,
+                    presenterModule
                 )
             )
         }
