@@ -6,22 +6,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.OptIn
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 
 class SongItemAdapter(
-    private val dataSet: List<Song>,
-    private val onSelectSong: (Int)-> Unit
+    private val dataSet: List<MediaItem>,
+    private val onSelectSong: (MediaItem) -> Unit
 ) : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
 
-    private val mutableSongList = mutableListOf<Song>()
+    private val mutableSongList = mutableListOf<MediaItem>()
 
     init {
         mutableSongList.clear()
         mutableSongList.addAll(dataSet)
     }
 
-    fun startPlaying(index: Int, song: Song) {
+    fun onMetadataChanged(index: Int, song: MediaItem) {
         mutableSongList[index] = song
         notifyItemChanged(index)
     }
@@ -38,12 +41,13 @@ class SongItemAdapter(
     }
 
     override fun onBindViewHolder(holder: SongItemView, position: Int) {
-        holder.update(mutableSongList[position], position)
+        holder.update(dataSet[position], position)
     }
 
+    @OptIn(UnstableApi::class)
     class SongItemView(
         private val view: View,
-        private val onSelectSong: (Int) -> Unit
+        private val onSelectSong: (MediaItem) -> Unit
     ) : RecyclerView.ViewHolder(view) {
 
         private val artwork: ImageView by lazy { view.findViewById(R.id.song_artwork) }
@@ -52,14 +56,19 @@ class SongItemAdapter(
         private val artist: TextView by lazy { view.findViewById(R.id.song_artist) }
         private val album: TextView by lazy { view.findViewById(R.id.song_album) }
 
-        fun update(newSong: Song, index: Int){
-            Log.e("AFRI", "update: $newSong")
-            artwork.load(R.drawable.artwork_placeholder)
-            soundWave.visibility = if(newSong.isPlaying) View.VISIBLE else View.INVISIBLE
-            title.text = newSong.title
-            artist.text = newSong.artist
-            album.text = newSong.album
-            view.setOnClickListener { onSelectSong(index) }
+        fun update(mediaItem: MediaItem, index: Int) {
+//            Log.e("AFRI", "update: ${mediaItem.mediaMetadata}")
+            val metadata = mediaItem.mediaMetadata
+            if (metadata.artworkData != null) {
+                artwork.load(metadata.artworkData)
+            } else {
+                artwork.load(R.drawable.artwork_placeholder)
+            }
+//            soundWave.visibility = if(mediaItem.) View.VISIBLE else View.INVISIBLE
+            title.text = metadata.title ?: "Title"
+            artist.text = metadata.artist ?: "Artist"
+            album.text = metadata.albumTitle ?: "Album"
+            view.setOnClickListener { onSelectSong(mediaItem) }
         }
     }
 }
