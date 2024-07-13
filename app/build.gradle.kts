@@ -53,9 +53,13 @@ dependencies {
     implementation("androidx.media3:media3-datasource:$media3Version")
     implementation("androidx.media3:media3-common:$media3Version")
     implementation("androidx.media3:media3-session:$media3Version")
+    implementation("androidx.media3:media3-exoplayer-dash:$media3Version")
 
     val coilVersion = "2.6.0"
     implementation("io.coil-kt:coil:$coilVersion")
+
+    val lottieVersion = "6.4.1"
+    implementation("com.airbnb.android:lottie:$lottieVersion")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
