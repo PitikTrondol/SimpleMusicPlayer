@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "anridiaf.playground.simplemusicplayer"
-        minSdk = 26
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -49,11 +49,8 @@ dependencies {
 
     val media3Version = "1.3.1"
     implementation("androidx.media3:media3-exoplayer:$media3Version")
-    implementation("androidx.media3:media3-ui:$media3Version")
-    implementation("androidx.media3:media3-datasource:$media3Version")
-    implementation("androidx.media3:media3-common:$media3Version")
-    implementation("androidx.media3:media3-session:$media3Version")
     implementation("androidx.media3:media3-exoplayer-dash:$media3Version")
+    implementation("androidx.media3:media3-ui:$media3Version")
 
     val coilVersion = "2.6.0"
     implementation("io.coil-kt:coil:$coilVersion")
