@@ -15,12 +15,37 @@ import coil.load
 
 class SongItemAdapter : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
 
-    private val mutableSongList = mutableListOf<MediaItem>()
+    private val mutableSongList = mutableListOf<AdapterItem>()
 
     fun updateTracks(tracks: List<MediaItem>) {
         mutableSongList.clear()
-        mutableSongList.addAll(tracks)
+        mutableSongList.addAll(
+            tracks.map {
+                AdapterItem(mediaItem = it)
+            }
+        )
         notifyItemRangeInserted(0, tracks.size)
+    }
+
+    private var previousIndex = -1
+    fun playSong(item: Pair<MediaItem, Boolean>) {
+        Log.e("AFRI", "playSong: ${item.first.mediaMetadata.title} :: ${item.second}")
+
+        if(previousIndex != -1){
+            mutableSongList[previousIndex] = mutableSongList[previousIndex].copy(
+                isPlaying = false
+            )
+            notifyItemChanged(previousIndex)
+        }
+
+        val currentIndex = mutableSongList.indexOfFirst { it.mediaItem == item.first }
+        previousIndex = currentIndex
+
+        mutableSongList[currentIndex] = mutableSongList[currentIndex].copy(
+            mediaItem = item.first,
+            isPlaying = item.second
+        )
+        notifyItemChanged(currentIndex)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongItemView {
@@ -35,7 +60,7 @@ class SongItemAdapter : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
     }
 
     override fun onBindViewHolder(holder: SongItemView, position: Int) {
-        holder.update(mutableSongList[position], position)
+        holder.update(mutableSongList[position])
     }
 
     @OptIn(UnstableApi::class)
@@ -49,15 +74,15 @@ class SongItemAdapter : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
         private val artist: TextView by lazy { view.findViewById(R.id.song_artist) }
         private val album: TextView by lazy { view.findViewById(R.id.song_album) }
 
-        fun update(mediaItem: MediaItem, index: Int) {
-            val metadata = mediaItem.mediaMetadata
+        fun update(data: AdapterItem) {
+            val metadata = data.mediaItem.mediaMetadata
             val artworkUri = metadata.artworkUri?.path.orEmpty()
             if (artworkUri.isNotBlank()) {
                 artwork.load(metadata.artworkUri)
             } else {
                 artwork.load(R.drawable.artwork_placeholder)
             }
-//            soundWave.visibility = if(mediaItem.) View.VISIBLE else View.INVISIBLE
+            soundWave.visibility = if(data.isPlaying) View.VISIBLE else View.INVISIBLE
             title.text = metadata.title ?: "Title"
             artist.text = metadata.artist ?: "Artist"
             album.text = metadata.albumTitle ?: "Album"
@@ -65,3 +90,8 @@ class SongItemAdapter : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
         }
     }
 }
+
+data class AdapterItem(
+    val mediaItem: MediaItem = MediaItem.EMPTY,
+    val isPlaying: Boolean = false
+)
