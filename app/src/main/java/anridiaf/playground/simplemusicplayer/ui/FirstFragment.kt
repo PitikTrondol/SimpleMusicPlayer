@@ -5,9 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -15,9 +18,11 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.LinearLayoutManager
 import anridiaf.playground.simplemusicplayer.databinding.FragmentFirstBinding
-import anridiaf.playground.simplemusicplayer.sources.songdata.SongDataManager
+import anridiaf.playground.simplemusicplayer.presenter.SongManagerViewModel
+import anridiaf.playground.simplemusicplayer.presenter.UiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -39,7 +44,7 @@ class FirstFragment : Fragment() {
             .build()
     }
 
-    private val songDataManager: SongDataManager by inject()
+    private val viewModel: SongManagerViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,15 +57,7 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val adapter = SongItemAdapter(onlineTracks) { index ->
-
-        }
-        binding.playlist.layoutManager = LinearLayoutManager(requireContext())
-        binding.playlist.adapter = adapter
-
         binding.controller.player = exoPlayer
-        exoPlayer.addMediaItems(onlineTracks)
-        exoPlayer.prepare()
         exoPlayer.addListener(
             object : Player.Listener {
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -77,20 +74,46 @@ class FirstFragment : Fragment() {
         )
 
         lifecycleScope.launch {
-            songDataManager.getList().fold(
-                failure = {
-                    Log.e("AFRI", "onViewCreated: ERROR $it")
-                },
-                success = {
-                    Log.e("TAG", "onViewCreated: SUCCESS ${it.joinToString("\n")}")
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiStateFlow.collect{state->
+                    when(state){
+                        UiState.Loading-> {
+                            binding.loadingScreen.show()
+                        }
+
+                        is UiState.Error -> {
+                            binding.loadingScreen.hide()
+                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
                 }
-            )
+            }
+        }
+
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mediaItemFlow.collect{items->
+                    binding.loadingScreen.hide()
+                    setupAdapter(items)
+                    exoPlayer.addMediaItems(items)
+                    exoPlayer.prepare()
+                }
+            }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setupAdapter(tracks: List<MediaItem>){
+        val adapter = SongItemAdapter(tracks) { index ->
+
+        }
+        binding.playlist.layoutManager = LinearLayoutManager(requireContext())
+        binding.playlist.adapter = adapter
     }
 }
 
