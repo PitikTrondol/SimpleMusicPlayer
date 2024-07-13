@@ -52,7 +52,8 @@
         android:id="@+id/loading_screen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/transparent_outer_space">
+        android:background="@color/transparent_outer_space"
+        tools:visibility="invisible">
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/loading_animation"
             android:layout_width="match_parent"
