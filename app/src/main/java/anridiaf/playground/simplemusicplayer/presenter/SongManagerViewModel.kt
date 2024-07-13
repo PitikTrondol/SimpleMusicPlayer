@@ -1,6 +1,5 @@
 package anridiaf.playground.simplemusicplayer.presenter
 
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,9 +9,7 @@ import anridiaf.playground.simplemusicplayer.sources.songdata.SongData
 import anridiaf.playground.simplemusicplayer.sources.songdata.SongDataManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,24 +18,22 @@ import kotlinx.coroutines.withContext
 class SongManagerViewModel(
     private val songDataManager: SongDataManager,
     private val defaultDispatcher: CoroutineDispatcher
-): ViewModel() {
+) : ViewModel() {
 
-    private val _mutableMediaItemFlow = MutableStateFlow(listOf<MediaItem>())
-    val mediaItemFlow: StateFlow<List<MediaItem>> get() = _mutableMediaItemFlow
-
-    private val _mutableUiStateSharedFlow = MutableSharedFlow<UiState>()
-    val uiStateFlow: SharedFlow<UiState> get() = _mutableUiStateSharedFlow
+    private val _mutableUiStateFlow = MutableStateFlow<UiState>(UiState.Init)
+    val uiStateFlow: StateFlow<UiState> get() = _mutableUiStateFlow
 
     init {
         viewModelScope.launch {
-            _mutableUiStateSharedFlow.tryEmit(UiState.Loading)
+            _mutableUiStateFlow.emit(UiState.Loading)
             songDataManager.getList().fold(
                 failure = {
-                    _mutableUiStateSharedFlow.tryEmit(UiState.Error(message = it))
+                    _mutableUiStateFlow.emit(UiState.Error(message = it))
                 },
-                success = {data->
-                    _mutableMediaItemFlow.update {
-                        mapMediaItem(data)
+                success = { data ->
+                    delay(5000)
+                    _mutableUiStateFlow.update {
+                        UiState.Success(mapMediaItem(data))
                     }
                 }
             )
@@ -47,8 +42,8 @@ class SongManagerViewModel(
 
     private suspend fun mapMediaItem(
         from: List<SongData>
-    ): List<MediaItem> = withContext(defaultDispatcher){
-        from.map { data->
+    ): List<MediaItem> = withContext(defaultDispatcher) {
+        from.map { data ->
             MediaItem.Builder()
                 .setUri(data.sources)
                 .setMediaMetadata(
@@ -60,13 +55,15 @@ class SongManagerViewModel(
                         .build()
                 )
                 .build()
-        }.also {
-            Log.e("AFRI", "mapMediaItem: ${it.joinToString("\n")}")
         }
     }
 }
 
 sealed class UiState {
-    data object Loading: UiState()
-    data class Error(val message: String): UiState()
+
+    data object Init : UiState()
+    data object Loading : UiState()
+    data class Error(val message: String) : UiState()
+
+    data class Success(val data: List<MediaItem>) : UiState()
 }
