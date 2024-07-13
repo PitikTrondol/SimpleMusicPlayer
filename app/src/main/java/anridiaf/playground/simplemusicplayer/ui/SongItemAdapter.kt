@@ -1,5 +1,6 @@
 package anridiaf.playground.simplemusicplayer.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,11 +23,6 @@ class SongItemAdapter(
     init {
         mutableSongList.clear()
         mutableSongList.addAll(dataSet)
-    }
-
-    fun onMetadataChanged(index: Int, song: MediaItem) {
-        mutableSongList[index] = song
-        notifyItemChanged(index)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongItemView {
@@ -57,10 +53,10 @@ class SongItemAdapter(
         private val album: TextView by lazy { view.findViewById(R.id.song_album) }
 
         fun update(mediaItem: MediaItem, index: Int) {
-//            Log.e("AFRI", "update: ${mediaItem.mediaMetadata}")
             val metadata = mediaItem.mediaMetadata
-            if (metadata.artworkData != null) {
-                artwork.load(metadata.artworkData)
+            val artworkUri = metadata.artworkUri?.path.orEmpty()
+            if (artworkUri.isNotBlank()) {
+                artwork.load(metadata.artworkUri)
             } else {
                 artwork.load(R.drawable.artwork_placeholder)
             }
@@ -72,11 +68,3 @@ class SongItemAdapter(
         }
     }
 }
-
-data class Song(
-    val artwork: String = "",
-    val title: String = "",
-    val artist: String = "",
-    val album: String = "",
-    val isPlaying: Boolean = false
-)
