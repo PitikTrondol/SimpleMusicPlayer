@@ -1,6 +1,5 @@
-package anridiaf.playground.simplemusicplayer
+package anridiaf.playground.simplemusicplayer.ui
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.recyclerview.widget.RecyclerView
+import anridiaf.playground.simplemusicplayer.R
 import coil.load
 
 class SongItemAdapter(

@@ -5,7 +5,7 @@
     android:id="@+id/song_item"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FirstFragment">
+    tools:context=".ui.FirstFragment">
 
     <com.google.android.material.search.SearchBar
         android:id="@+id/search_bar"

@@ -1,7 +1,5 @@
-package anridiaf.playground.simplemusicplayer
+package anridiaf.playground.simplemusicplayer.ui
 
-import android.content.ContentResolver
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -16,6 +15,9 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.LinearLayoutManager
 import anridiaf.playground.simplemusicplayer.databinding.FragmentFirstBinding
+import anridiaf.playground.simplemusicplayer.sources.songdata.SongDataManager
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -36,6 +38,8 @@ class FirstFragment : Fragment() {
             )
             .build()
     }
+
+    private val songDataManager: SongDataManager by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,6 +75,17 @@ class FirstFragment : Fragment() {
                 }
             }
         )
+
+        lifecycleScope.launch {
+            songDataManager.getList().fold(
+                failure = {
+                    Log.e("AFRI", "onViewCreated: ERROR $it")
+                },
+                success = {
+                    Log.e("TAG", "onViewCreated: SUCCESS ${it.joinToString("\n")}")
+                }
+            )
+        }
     }
 
     override fun onDestroyView() {
