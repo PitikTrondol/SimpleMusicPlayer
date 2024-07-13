@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SongDataList(
 	@SerialName("musics")
-	val songData: List<SongData?>? = null
+	val songData: List<SongDataResponse?>? = null
 )
 
 @Serializable
-data class SongData(
+data class SongDataResponse(
 
 	@SerialName("thumbnail")
 	val thumbnail: String? = null,
@@ -23,4 +23,11 @@ data class SongData(
 
 	@SerialName("title")
 	val title: String? = null
+)
+
+data class SongData(
+	val thumbnail: String,
+	val sources: String,
+	val artist: String,
+	val title: String
 )

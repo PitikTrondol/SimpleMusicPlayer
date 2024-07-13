@@ -1,42 +1,46 @@
 package anridiaf.playground.simplemusicplayer.sources.songdata
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-data class Music(
+@Serializable
+data class GistResponse(
 
-	@field:SerializedName("files")
+	@SerialName("files")
 	val files: Files? = null,
 
-	@field:SerializedName("url")
+	@SerialName("url")
 	val url: String? = null
 )
 
+@Serializable
 data class Files(
 
-	@field:SerializedName("playlist.json")
-	val playlistJson: PlaylistJson? = null
+	@SerialName("playlist")
+	val playlist: Playlist? = null
 )
 
-data class PlaylistJson(
+@Serializable
+data class Playlist(
 
-	@field:SerializedName("filename")
+	@SerialName("filename")
 	val filename: String? = null,
 
-	@field:SerializedName("size")
+	@SerialName("size")
 	val size: Int? = null,
 
-	@field:SerializedName("truncated")
+	@SerialName("truncated")
 	val truncated: Boolean? = null,
 
-	@field:SerializedName("language")
+	@SerialName("language")
 	val language: String? = null,
 
-	@field:SerializedName("type")
+	@SerialName("type")
 	val type: String? = null,
 
-	@field:SerializedName("raw_url")
+	@SerialName("raw_url")
 	val rawUrl: String? = null,
 
-	@field:SerializedName("content")
+	@SerialName("content")
 	val content: String? = null
 )
