@@ -22,12 +22,16 @@ data class SongDataResponse(
 	val artist: String? = null,
 
 	@SerialName("title")
-	val title: String? = null
+	val title: String? = null,
+
+	@SerialName("album")
+	val album: String? = null
 )
 
 data class SongData(
 	val thumbnail: String,
 	val sources: String,
 	val artist: String,
-	val title: String
+	val title: String,
+	val album: String
 )
