@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="10dp">
+
         <ImageView
             android:id="@+id/song_artwork"
             android:layout_width="60dp"
@@ -38,9 +39,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:textColor="@color/outer_space"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@color/outer_space"
                 tools:text="Sepasang Kekasih yang.." />
 
             <TextView
@@ -61,7 +62,7 @@
 
         </LinearLayout>
 
-        <ImageView
+        <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/song_sound_wave"
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -70,18 +71,21 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/soundwave_placeholder" />
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/sound_wave_animation"
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/french_grey"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
+        android:background="@color/french_grey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

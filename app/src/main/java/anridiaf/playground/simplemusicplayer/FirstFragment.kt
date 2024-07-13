@@ -9,7 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
@@ -46,14 +49,43 @@ class FirstFragment : Fragment() {
     @OptIn(UnstableApi::class)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.controller.visibility = View.INVISIBLE
-        binding.controller.player = exoPlayer
-        binding.playlist.layoutManager = LinearLayoutManager(requireContext())
-        binding.playlist.adapter = SongItemAdapter(dummySongs){
-            exoPlayer.setMediaItem(MediaItem.fromUri(uri))
+        val itemList = dummySongs.map {
+            MediaItem.fromUri(uri)
+        }
+        val adapter = SongItemAdapter(dummySongs){index->
+            exoPlayer.setMediaItems(
+                itemList,
+                index,
+                C.TIME_UNSET
+            )
             exoPlayer.prepare()
             binding.controller.visibility = View.VISIBLE
         }
+
+        binding.controller.visibility = View.INVISIBLE
+        binding.controller.player = exoPlayer
+        binding.playlist.layoutManager = LinearLayoutManager(requireContext())
+        binding.playlist.adapter = adapter
+
+        exoPlayer.addListener(
+            object : Player.Listener{
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    Log.e("AFRI", "onIsPlayingChanged: ")
+                    super.onIsPlayingChanged(isPlaying)
+                    adapter.startPlaying(
+                        exoPlayer.currentMediaItemIndex,
+                        dummySongs[exoPlayer.currentMediaItemIndex].copy(
+                            isPlaying = isPlaying
+                        )
+                    )
+                }
+
+                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                    super.onMediaItemTransition(mediaItem, reason)
+                    mediaItem
+                }
+            }
+        )
     }
 
     override fun onDestroyView() {
