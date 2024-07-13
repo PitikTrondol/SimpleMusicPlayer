@@ -31,7 +31,6 @@ class SongManagerViewModel(
                     _mutableUiStateFlow.emit(UiState.Error(message = it))
                 },
                 success = { data ->
-                    delay(5000)
                     _mutableUiStateFlow.update {
                         UiState.Success(mapMediaItem(data))
                     }
