@@ -13,37 +13,34 @@ import androidx.recyclerview.widget.RecyclerView
 import anridiaf.playground.simplemusicplayer.R
 import coil.load
 
-class SongItemAdapter(
-    private val dataSet: List<MediaItem>,
-    private val onSelectSong: (MediaItem) -> Unit
-) : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
+class SongItemAdapter : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
 
     private val mutableSongList = mutableListOf<MediaItem>()
 
-    init {
+    fun updateTracks(tracks: List<MediaItem>) {
         mutableSongList.clear()
-        mutableSongList.addAll(dataSet)
+        mutableSongList.addAll(tracks)
+        notifyItemRangeInserted(0, tracks.size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongItemView {
         val view = LayoutInflater
             .from(parent.context)
             .inflate(R.layout.playlist_item, parent, false)
-        return SongItemView(view, onSelectSong)
+        return SongItemView(view)
     }
 
     override fun getItemCount(): Int {
-        return dataSet.size
+        return mutableSongList.size
     }
 
     override fun onBindViewHolder(holder: SongItemView, position: Int) {
-        holder.update(dataSet[position], position)
+        holder.update(mutableSongList[position], position)
     }
 
     @OptIn(UnstableApi::class)
     class SongItemView(
-        private val view: View,
-        private val onSelectSong: (MediaItem) -> Unit
+        private val view: View
     ) : RecyclerView.ViewHolder(view) {
 
         private val artwork: ImageView by lazy { view.findViewById(R.id.song_artwork) }
@@ -64,7 +61,7 @@ class SongItemAdapter(
             title.text = metadata.title ?: "Title"
             artist.text = metadata.artist ?: "Artist"
             album.text = metadata.albumTitle ?: "Album"
-            view.setOnClickListener { onSelectSong(mediaItem) }
+//            view.setOnClickListener { onSelectSong(mediaItem) }
         }
     }
 }
