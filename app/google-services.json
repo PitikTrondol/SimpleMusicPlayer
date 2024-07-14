@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "229429683256",
+    "project_id": "simplemediaplayer",
+    "storage_bucket": "simplemediaplayer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229429683256:android:af292631f9085dcf68b2cd",
+        "android_client_info": {
+          "package_name": "anridiaf.playground.simplemusicplayer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNVuhOj1Om6KIZv7bhZ7gik1DTdqkrfRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,4 +4,5 @@ plugins {
     id("org.jetbrains.kotlin.android") version "1.9.10" apply false
     kotlin("plugin.serialization") version "1.9.10" apply false
     id("de.mannodermaus.android-junit5") version "1.10.0.0" apply false
+    id("com.google.gms.google-services") version "4.4.2" apply false
 }
