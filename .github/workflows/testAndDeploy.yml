@@ -55,12 +55,12 @@ jobs:
           file: app/build/outputs/apk/debug/app-debug.apk
           releaseNotesFile: releaseNote.txt
 
-      - name: Create release and upload apk
-        uses: underwindfall/create-release-with-debugapk@v2.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        with:
-          tag_name: v0.0.1
-          asset_path: app/build/outputs/apk/debug/app-debug.apk
-          asset_name: Simple Music.apk
-          asset_content_type: application/zip
+#      - name: Create release and upload apk
+#        uses: underwindfall/create-release-with-debugapk@v2.0.0
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+#        with:
+#          tag_name: v0.0.1
+#          asset_path: app/build/outputs/apk/debug/app-debug.apk
+#          asset_name: Simple Music.apk
+#          asset_content_type: application/zip
