@@ -149,13 +149,15 @@ class FirstFragment : Fragment() {
 
     private val queryListener = object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {
-            Log.e("AFRI", "onQueryTextSubmit: $query")
+            viewModel.filterPlaylist(query.orEmpty())
             return false
         }
 
         override fun onQueryTextChange(newText: String?): Boolean {
-            Log.e("AFRI", "onQueryTextChange: $newText")
-            exoPlayer.currentMediaItem
+            if(newText.isNullOrBlank()){
+                viewModel.filterPlaylist("")
+            }
+
             return false
         }
 

@@ -15,16 +15,20 @@ import coil.load
 
 class SongItemAdapter : RecyclerView.Adapter<SongItemAdapter.SongItemView>() {
 
+    private var previousTrackSize = 0
     private val mutableSongList = mutableListOf<AdapterItem>()
 
     fun updateTracks(tracks: List<MediaItem>) {
         mutableSongList.clear()
+        notifyItemRangeRemoved(0, previousTrackSize)
+
         mutableSongList.addAll(
             tracks.map {
                 AdapterItem(mediaItem = it)
             }
         )
         notifyItemRangeInserted(0, tracks.size)
+        previousTrackSize = tracks.size
     }
 
     private var previousIndex = -1
