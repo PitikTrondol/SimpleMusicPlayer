@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
@@ -17,12 +18,12 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.util.EventLogger
 import androidx.recyclerview.widget.LinearLayoutManager
+import anridiaf.playground.simplemusicplayer.R
 import anridiaf.playground.simplemusicplayer.databinding.FragmentFirstBinding
 import anridiaf.playground.simplemusicplayer.presenter.SongManagerViewModel
 import anridiaf.playground.simplemusicplayer.presenter.UiState
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.math.log
 import kotlin.properties.Delegates
 
 /**
@@ -63,41 +64,29 @@ class FirstFragment : Fragment() {
     private var onNextOrPrev = false
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.controller.player = exoPlayer
-        exoPlayer.addListener(
-            object : Player.Listener {
-                override fun onEvents(player: Player, events: Player.Events) {
-                    super.onEvents(player, events)
 
-                    if(events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)
-                        && events.contains(Player.EVENT_TRACKS_CHANGED)
-                        && events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
-                        && events.contains(Player.EVENT_POSITION_DISCONTINUITY)
-                        && events.contains(Player.EVENT_AVAILABLE_COMMANDS_CHANGED)
-                        && events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)){
+        // SearchView
+        binding.searchView.setOnQueryTextListener(queryListener)
+        binding.searchView.queryHint = getString(R.string.search_hint)
 
-                        onNextOrPrev = true
-                    }
-
-                    player.currentMediaItem?.let {
-                        currentPlaying = Pair(
-                            first = it,
-                            second = player.isPlaying
-                        )
-                    }
-                }
-
-                override fun onIsLoadingChanged(isLoading: Boolean) {
-                    super.onIsLoadingChanged(isLoading)
-                    if(onNextOrPrev && !isLoading){
-                        exoPlayer.play()
-                    }
-                }
-            }
-        )
+        // RecyclerView
         binding.playlist.layoutManager = LinearLayoutManager(requireContext())
         binding.playlist.adapter = adapter
 
+        // ExoPlayer
+        exoPlayer.addListener(playerListener)
+        binding.controller.player = exoPlayer
+
+        observeUIState()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        exoPlayer.release()
+        _binding = null
+    }
+
+    private fun observeUIState(){
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiStateFlow.collect { state ->
@@ -128,9 +117,47 @@ class FirstFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        exoPlayer.release()
-        _binding = null
+    private val playerListener = object : Player.Listener {
+        override fun onEvents(player: Player, events: Player.Events) {
+            super.onEvents(player, events)
+
+            if(events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)
+                && events.contains(Player.EVENT_TRACKS_CHANGED)
+                && events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
+                && events.contains(Player.EVENT_POSITION_DISCONTINUITY)
+                && events.contains(Player.EVENT_AVAILABLE_COMMANDS_CHANGED)
+                && events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)){
+
+                onNextOrPrev = true
+            }
+
+            player.currentMediaItem?.let {
+                currentPlaying = Pair(
+                    first = it,
+                    second = player.isPlaying
+                )
+            }
+        }
+
+        override fun onIsLoadingChanged(isLoading: Boolean) {
+            super.onIsLoadingChanged(isLoading)
+            if(onNextOrPrev && !isLoading){
+                exoPlayer.play()
+            }
+        }
+    }
+
+    private val queryListener = object : SearchView.OnQueryTextListener {
+        override fun onQueryTextSubmit(query: String?): Boolean {
+            Log.e("AFRI", "onQueryTextSubmit: $query")
+            return false
+        }
+
+        override fun onQueryTextChange(newText: String?): Boolean {
+            Log.e("AFRI", "onQueryTextChange: $newText")
+            exoPlayer.currentMediaItem
+            return false
+        }
+
     }
 }
