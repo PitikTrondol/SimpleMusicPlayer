@@ -61,7 +61,10 @@ class SongManagerViewModel(
     ): List<MediaItem> = withContext(defaultDispatcher) {
         data.filter {
             val artist = it.mediaMetadata.artist ?: ""
+            val title = it.mediaMetadata.title ?: ""
+
             artist.contains(query, true)
+                    ||title.contains(query, true)
         }
     }
 
