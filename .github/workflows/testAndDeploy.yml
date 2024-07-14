@@ -44,6 +44,6 @@ jobs:
       - name: Generate APK Debug
         id: releaseApk
         run: |
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assemble --stacktrace
           echo "apkFile=$(find app/build/outputs/apk/debug/*.apk)" >> $GITHUB_OUTPUT
           echo apkFile --- $apkFile
