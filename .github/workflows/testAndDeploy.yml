@@ -49,7 +49,5 @@ jobs:
         id: getApkPath
         run: |
           echo "apkfile=$(find app/build/outputs/apk/debug/*.apk)" >> $GITHUB_OUTPUT
-          echo apkfile --- apkfile
-          ls -a app/build/
-          echo ====================
-          ls -a app/build/outputs/
+          echo apkfile --- $apkfile
+          ls -a app/build/outputs/apk/debug/
