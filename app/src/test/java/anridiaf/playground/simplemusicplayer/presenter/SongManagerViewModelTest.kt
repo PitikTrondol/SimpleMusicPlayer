@@ -1,6 +1,7 @@
 package anridiaf.playground.simplemusicplayer.presenter
 
 import android.net.Uri
+import androidx.media3.common.MediaItem
 import anridiaf.playground.simplemusicplayer.sources.songdata.SongData
 import anridiaf.playground.simplemusicplayer.sources.songdata.SongDataManager
 import anridiaf.playground.simplemusicplayer.utils.CoroutinesTestExtension
@@ -12,29 +13,30 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(InstantExecutorExtension::class)
 class SongManagerViewModelTest {
 
     @JvmField
     @RegisterExtension
     val coroutinesExtension = CoroutinesTestExtension()
 
-    @JvmField
-    @RegisterExtension
-    val executorExtension = InstantExecutorExtension()
-
     private val songDataManager: SongDataManager = mockk()
     private fun createViewModel() = SongManagerViewModel(
         songDataManager = songDataManager,
-        defaultDispatcher = coroutinesExtension.dispatcher,
+        defaultDispatcher = coroutinesExtension.dispatcher
     )
 
     @BeforeEach
@@ -54,10 +56,7 @@ class SongManagerViewModelTest {
                 )
 
                 // Act
-                val sut = SongManagerViewModel(
-                    songDataManager = songDataManager,
-                    defaultDispatcher = coroutinesExtension.dispatcher,
-                )
+                val sut = createViewModel()
 
                 // Assert
                 sut.uiStateFlow.test {
@@ -76,10 +75,7 @@ class SongManagerViewModelTest {
                 coEvery { songDataManager.getList() } returns ResultWrapper.Success(emptyList())
 
                 // Act
-                val sut = SongManagerViewModel(
-                    songDataManager = songDataManager,
-                    defaultDispatcher = coroutinesExtension.dispatcher,
-                )
+                val sut = createViewModel()
 
                 // Assert
                 sut.uiStateFlow.test {
@@ -110,10 +106,7 @@ class SongManagerViewModelTest {
                 coEvery { songDataManager.getList() } returns ResultWrapper.Success(expectedData)
 
                 // Act
-                val sut = SongManagerViewModel(
-                    songDataManager = songDataManager,
-                    defaultDispatcher = coroutinesExtension.dispatcher,
-                )
+                val sut = createViewModel()
 
                 // Assert
                 sut.uiStateFlow.test {
@@ -133,19 +126,79 @@ class SongManagerViewModelTest {
     @Nested
     inner class Filter {
         @Test
-        fun `WHEN query is blank THEN uiStateFlow data SHOULD reset`() = runTest {
+        fun `WHEN query matched 1 THEN uiStateFlow data SHOULD exist 1 member`() = runTest {
             // Arrange
+            val expectedName = "Haf"
+            val expectedData = listMediaItem
+            every { Uri.parse(any()) } returns mockk<Uri>()
+            coEvery { songDataManager.getList() } returns ResultWrapper.Success(expectedData)
 
             // Act
             val sut = createViewModel()
+            sut.uiStateFlow.test{
+                assertTrue(awaitItem() is UiState.Init)
+                assertTrue(awaitItem() is UiState.Loading)
+
+                val afterInit = awaitItem()
+                assertTrue(afterInit is UiState.Success)
+                assertEquals(expectedData.size, afterInit.data.size)
+            }
+            advanceUntilIdle()
+
+            sut.filterPlaylist(expectedName)
 
             // Assert
+            sut.uiStateFlow.test {
+                val afterFiltering = awaitItem()
+                assertTrue(afterFiltering is UiState.Success)
+                assertTrue(afterFiltering.data.isNotEmpty())
+            }
+        }
+
+        @Test
+        fun `WHEN query not matched THEN uiStateFlow data SHOULD BE empty`() = runTest {
+            // Arrange
+            val expectedName = "Hafdasdasdas"
+            val expectedData = listMediaItem
+            every { Uri.parse(any()) } returns mockk<Uri>()
+            coEvery { songDataManager.getList() } returns ResultWrapper.Success(expectedData)
+
+            // Act
+            val sut = createViewModel()
+            sut.filterPlaylist(expectedName)
+
+            // Assert
+            sut.uiStateFlow.test {
+                assertTrue(awaitItem() is UiState.Init)
+                assertTrue(awaitItem() is UiState.Loading)
+
+                val afterInit = awaitItem()
+                assertTrue(afterInit is UiState.Success)
+                assertEquals(expectedData.size, afterInit.data.size)
+
+                val afterFiltering = awaitItem()
+                assertTrue(afterFiltering is UiState.Success)
+                assertTrue(afterFiltering.data.isEmpty())
+            }
+        }
+    }
+
+    private suspend fun filterThis(
+        data: List<MediaItem>,
+        query: String
+    ): List<MediaItem> = withContext(coroutinesExtension.dispatcher) {
+        data.filter {
+            val artist = it.mediaMetadata.artist ?: ""
+            val title = it.mediaMetadata.title ?: ""
+
+            artist.contains(query, true)
+             ||title.contains(query, true)
         }
     }
 
     private val listMediaItem = listOf(
         defaultSongData(artis = "Hafnarfjordur"),
-        defaultSongData(artis = "Tarno"),
+        defaultSongData(artis = "Tarno Prok Prok Prok"),
         defaultSongData(title = "Break it down"),
         defaultSongData(artis = "Megumi"),
         defaultSongData(title = "Random"),
@@ -154,7 +207,7 @@ class SongManagerViewModelTest {
     private fun defaultSongData(artis: String = "", title: String = "") = SongData(
         thumbnail = "",
         sources = "",
-        artist = title,
+        artist = artis,
         title = title,
         album = ""
     )
