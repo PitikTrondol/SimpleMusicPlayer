@@ -63,8 +63,10 @@ class SongManagerViewModel(
             val artist = it.mediaMetadata.artist ?: ""
             val title = it.mediaMetadata.title ?: ""
 
-            artist.contains(query, true)
-                    || title.contains(query, true)
+            val isArtistFound = artist.contains(query, true)
+            val isTitleFound = title.contains(query, true)
+
+            isArtistFound || isTitleFound
         }
     }
 
