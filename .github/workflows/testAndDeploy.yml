@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -48,5 +48,8 @@ jobs:
       - name: Get release file apk path
         id: getApkPath
         run: |
-          echo "apkFile=$(find app/build/outputs/apk/debug/*.apk)" >> $GITHUB_OUTPUT
-          echo apkFile --- $apkFile
+          echo "apkfile=$(find app/build/outputs/apk/debug/*.apk)" >> $GITHUB_OUTPUT
+          echo apkfile --- apkfile
+          ls -a app/build/
+          echo ====================
+          ls -a app/build/outputs/
