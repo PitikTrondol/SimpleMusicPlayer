@@ -44,7 +44,7 @@ class SongManagerViewModel(
     }
 
     fun filterPlaylist(query: String) {
-        if(query.isBlank()){
+        if (query.isBlank()) {
             _mutableUiStateFlow.update { UiState.Success(_mediaItemCache) }
             return
         }
@@ -64,7 +64,7 @@ class SongManagerViewModel(
             val title = it.mediaMetadata.title ?: ""
 
             artist.contains(query, true)
-                    ||title.contains(query, true)
+                    || title.contains(query, true)
         }
     }
 
