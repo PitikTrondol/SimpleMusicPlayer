@@ -43,7 +43,9 @@ class FirstFragment : Fragment() {
             }
     }
     private val viewModel: SongManagerViewModel by viewModel()
-    private val adapter: SongItemAdapter by lazy { SongItemAdapter() }
+    private val adapter: SongItemAdapter by lazy {
+        SongItemAdapter { seekToIndex = it }
+    }
 
     /** Debouncing query search to deffer searching process after finished typing */
     private val _mutableSearchFlow: MutableSharedFlow<String> = MutableSharedFlow(
@@ -57,12 +59,21 @@ class FirstFragment : Fragment() {
             .debounce(700)
             .distinctUntilChanged()
 
-    /** For easier diff to minimize method call of [SongItemAdapter.playSong] */
+    /** For easier diff to minimize method call of [SongItemAdapter.updateItem] */
     private var currentPlaying: Pair<MediaItem, Boolean> by Delegates.observable(
         Pair(MediaItem.EMPTY, false)
     ) { _, old, new ->
         if (old != new) {
-            adapter.playSong(new)
+            adapter.updateItem(new)
+        }
+    }
+
+    private var seekToIndex: Int by Delegates.observable(-1){_, old, new->
+        if(old != new){
+            adapter.selectItem(new)
+            if(!exoPlayer.isPlaying){
+                exoPlayer.seekTo(new, 0L)
+            }
         }
     }
 
@@ -75,7 +86,6 @@ class FirstFragment : Fragment() {
         return binding.root
     }
 
-    private var onNextOrPrev = false
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -145,29 +155,29 @@ class FirstFragment : Fragment() {
     private val playerListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
             super.onEvents(player, events)
-
-            if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)
-                && events.contains(Player.EVENT_TRACKS_CHANGED)
-                && events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
-                && events.contains(Player.EVENT_POSITION_DISCONTINUITY)
-                && events.contains(Player.EVENT_AVAILABLE_COMMANDS_CHANGED)
-                && events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)
-            ) {
-
-                onNextOrPrev = true
-            }
-
             player.currentMediaItem?.let {
                 currentPlaying = Pair(
                     first = it,
                     second = player.isPlaying
                 )
             }
+
+            logEvent(events)
         }
 
-        override fun onIsLoadingChanged(isLoading: Boolean) {
-            super.onIsLoadingChanged(isLoading)
-            if (onNextOrPrev && !isLoading) {
+        override fun onPositionDiscontinuity(
+            oldPosition: Player.PositionInfo,
+            newPosition: Player.PositionInfo,
+            reason: Int
+        ) {
+            super.onPositionDiscontinuity(oldPosition, newPosition, reason)
+
+            val oldIndex = oldPosition.mediaItemIndex
+            val newIndex = newPosition.mediaItemIndex
+            val isNext = newIndex == oldIndex + 1
+            val isPrev = newIndex == oldIndex - 1
+
+            if (oldIndex != newIndex && (isNext || isPrev) && !exoPlayer.isPlaying) {
                 exoPlayer.play()
             }
         }
