@@ -2,30 +2,23 @@ package anridiaf.playground.simplemusicplayer.utils
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
-import org.junit.jupiter.api.extension.AfterEachCallback
-import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.TestInstancePostProcessor
 
-class InstantExecutorExtension : BeforeEachCallback, AfterEachCallback {
+class InstantExecutorExtension : TestInstancePostProcessor {
+    override fun postProcessTestInstance(testInstance: Any?, context: ExtensionContext?) {
+        ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
+            override fun executeOnDiskIO(runnable: Runnable) {
+                runnable.run()
+            }
 
-    /**
-     * sets a delegate before each test that updates LiveData immediately on the calling thread
-     */
-    override fun beforeEach(context: ExtensionContext?) {
-        ArchTaskExecutor.getInstance()
-            .setDelegate(object : TaskExecutor() {
-                override fun executeOnDiskIO(runnable: Runnable) = runnable.run()
+            override fun postToMainThread(runnable: Runnable) {
+                runnable.run()
+            }
 
-                override fun postToMainThread(runnable: Runnable) = runnable.run()
-
-                override fun isMainThread(): Boolean = true
-            })
-    }
-
-    /**
-     * Remove delegate after each test, to avoid influencing other tests
-     */
-    override fun afterEach(context: ExtensionContext?) {
-        ArchTaskExecutor.getInstance().setDelegate(null)
+            override fun isMainThread(): Boolean {
+                return true
+            }
+        })
     }
 }

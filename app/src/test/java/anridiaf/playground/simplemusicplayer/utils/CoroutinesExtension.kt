@@ -23,6 +23,5 @@ class CoroutinesTestExtension(
 
     override fun afterEach(context: ExtensionContext?) {
         Dispatchers.resetMain()
-        dispatcher
     }
 }
