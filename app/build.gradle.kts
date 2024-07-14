@@ -71,7 +71,24 @@ dependencies {
     implementation("io.insert-koin:koin-core:$koinVersion")
     implementation("io.insert-koin:koin-android:$koinVersion")
 
-    testImplementation("junit:junit:4.13.2")
+    /**
+     *  =======================================================================
+     *                          TEST DEPENDENCIES
+     *  =======================================================================
+     */
+    testImplementation("io.insert-koin:koin-test:$koinVersion")
+    testImplementation("io.insert-koin:koin-test-junit5:$koinVersion")
+
+    val jUniVersion = "5.10.0"
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jUniVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$jUniVersion")
+
+    val mockkVersion = "1.12.4"
+    testImplementation("io.mockk:mockk:$mockkVersion")
+
+    val coroutinesTestVersion = "1.8.1"
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesTestVersion")
+
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
