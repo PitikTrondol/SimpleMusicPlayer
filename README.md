@@ -1,13 +1,11 @@
 # SimpleMusicPlayer
 
 [![Firebase Distribution](https://github.com/PitikTrondol/SimpleMusicPlayer/actions/workflows/testAndDeploy.yml/badge.svg)](https://github.com/PitikTrondol/SimpleMusicPlayer/actions/workflows/testAndDeploy.yml)
-![GitHub Downloads (all assets, specific tag)](https://img.shields.io/github/downloads/PitikTrondol/SimpleMusicPlayer/v0.0.1-alpha/total)
-
+![GitHub Downloads (specific asset, specific tag)](https://img.shields.io/github/downloads/PitikTrondol/SimpleMusicPlayer/v0.0.1-alpha/app-debug.apk)
 
 
 ## Developers
-Afriandi Haryanto 
-emailafriandi@gmail.com
+Afriandi Haryanto (emailafriandi@gmail.com)
 
 ## Main Feature
 This project is using `MVVM` as its architecture with Kotlin `Coroutines` as asynchronous handler.
@@ -25,9 +23,13 @@ Implemented features:
  - Using JUnit 5 and mockk as the main library 
  - Run `./gradlew test` to start the process
 
+## Generate APK
+ - Run `./gradlew assembleDebug` to start the process
+
 ## Deployment
  - Currently deployed to Firebase App Distribution with email invitation
  - Github tag created manually
+ - Trigger on merge or push to branch `main`
 
 
 # Thanks for your attention
