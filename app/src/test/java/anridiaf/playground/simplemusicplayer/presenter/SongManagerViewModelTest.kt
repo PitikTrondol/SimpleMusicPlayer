@@ -146,12 +146,13 @@ class SongManagerViewModelTest {
             advanceUntilIdle()
 
             sut.filterPlaylist(expectedName)
+            advanceUntilIdle()
 
             // Assert
             sut.uiStateFlow.test {
                 val afterFiltering = awaitItem()
                 assertTrue(afterFiltering is UiState.Success)
-                assertTrue(afterFiltering.data.isNotEmpty())
+                assertEquals(1, afterFiltering.data.size)
             }
         }
 
@@ -165,9 +166,6 @@ class SongManagerViewModelTest {
 
             // Act
             val sut = createViewModel()
-            sut.filterPlaylist(expectedName)
-
-            // Assert
             sut.uiStateFlow.test {
                 assertTrue(awaitItem() is UiState.Init)
                 assertTrue(awaitItem() is UiState.Loading)
@@ -175,24 +173,58 @@ class SongManagerViewModelTest {
                 val afterInit = awaitItem()
                 assertTrue(afterInit is UiState.Success)
                 assertEquals(expectedData.size, afterInit.data.size)
+            }
+            advanceUntilIdle()
 
+            sut.filterPlaylist(expectedName)
+            advanceUntilIdle()
+
+            // Assert
+            sut.uiStateFlow.test {
                 val afterFiltering = awaitItem()
                 assertTrue(afterFiltering is UiState.Success)
                 assertTrue(afterFiltering.data.isEmpty())
             }
         }
-    }
 
-    private suspend fun filterThis(
-        data: List<MediaItem>,
-        query: String
-    ): List<MediaItem> = withContext(coroutinesExtension.dispatcher) {
-        data.filter {
-            val artist = it.mediaMetadata.artist ?: ""
-            val title = it.mediaMetadata.title ?: ""
+        @Test
+        fun `WHEN filtered list, re-query with blank string, THEN uiStateFlow data SHOULD BE reset`() = runTest {
+            // Arrange
+            val firstQuery = "arno"
+            val expectedData = listMediaItem
+            every { Uri.parse(any()) } returns mockk<Uri>()
+            coEvery { songDataManager.getList() } returns ResultWrapper.Success(expectedData)
 
-            artist.contains(query, true)
-             ||title.contains(query, true)
+            // Act
+            val sut = createViewModel()
+            sut.uiStateFlow.test {
+                assertTrue(awaitItem() is UiState.Init)
+                assertTrue(awaitItem() is UiState.Loading)
+
+                val afterInit = awaitItem()
+                assertTrue(afterInit is UiState.Success)
+                assertEquals(expectedData.size, afterInit.data.size)
+            }
+            advanceUntilIdle()
+
+            sut.filterPlaylist(firstQuery)
+            advanceUntilIdle()
+
+            sut.uiStateFlow.test {
+                val afterFiltering = awaitItem()
+                assertTrue(afterFiltering is UiState.Success)
+                assertEquals(2, afterFiltering.data.size)
+            }
+
+            sut.filterPlaylist("")
+            advanceUntilIdle()
+
+            // Assert
+            sut.uiStateFlow.test {
+                val afterFiltering = awaitItem()
+                assertTrue(afterFiltering is UiState.Success)
+                assertEquals(expectedData.size, afterFiltering.data.size)
+            }
         }
     }
 
@@ -201,7 +233,7 @@ class SongManagerViewModelTest {
         defaultSongData(artis = "Tarno Prok Prok Prok"),
         defaultSongData(title = "Break it down"),
         defaultSongData(artis = "Megumi"),
-        defaultSongData(title = "Random"),
+        defaultSongData(title = "Karno"),
     )
 
     private fun defaultSongData(artis: String = "", title: String = "") = SongData(
