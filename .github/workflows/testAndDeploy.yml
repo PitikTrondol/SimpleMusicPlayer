@@ -25,12 +25,26 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: gradle
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Setup Android SDK and Grant execute permission for gradlew
+        uses: android-actions/setup-android@v2.0.10
+        run: chmod +x gradlew
+
+#      - name: Grant execute permission for gradlew
+#        run: chmod +x gradlew
+
+      - name: Run test
+        run: ./gradlew test
+
+      - name: Generate APK Debug
+        id: releaseApk
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          ./gradlew assembleDebug --stacktrace
+          echo "apkFile=$(find app/build/outputs/apk/debug/*.apk)" >> $GITHUB_OUTPUT
+          echo apkFile --- $apkFile
