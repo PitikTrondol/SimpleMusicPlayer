@@ -31,9 +31,6 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.properties.Delegates
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
 @OptIn(UnstableApi::class)
 class FirstFragment : Fragment() {
 
@@ -47,6 +44,18 @@ class FirstFragment : Fragment() {
     }
     private val viewModel: SongManagerViewModel by viewModel()
     private val adapter: SongItemAdapter by lazy { SongItemAdapter() }
+
+    /** Debouncing query search to deffer searching process after finished typing */
+    private val _mutableSearchFlow: MutableSharedFlow<String> = MutableSharedFlow(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
+    @kotlin.OptIn(FlowPreview::class)
+    private val _searchFlow: Flow<String>
+        get() = _mutableSearchFlow
+            .debounce(700)
+            .distinctUntilChanged()
 
     /** For easier diff to minimize method call of [SongItemAdapter.playSong] */
     private var currentPlaying: Pair<MediaItem, Boolean> by Delegates.observable(
@@ -122,17 +131,6 @@ class FirstFragment : Fragment() {
             }
         }
     }
-
-    private val _mutableSearchFlow: MutableSharedFlow<String> = MutableSharedFlow(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-
-    @kotlin.OptIn(FlowPreview::class)
-    private val _searchFlow: Flow<String>
-        get() = _mutableSearchFlow
-            .debounce(700)
-            .distinctUntilChanged()
 
     private fun observeSearchFlow() {
         lifecycleScope.launch {
