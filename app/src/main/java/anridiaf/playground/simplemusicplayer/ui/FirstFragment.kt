@@ -1,6 +1,7 @@
 package anridiaf.playground.simplemusicplayer.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -68,12 +69,18 @@ class FirstFragment : Fragment() {
         }
     }
 
-    private var seekToIndex: Int by Delegates.observable(-1){_, old, new->
-        if(old != new){
+    private var seekToIndex: Int by Delegates.observable(-1) { _, old, new ->
+        if (old != new) {
             adapter.selectItem(new)
-            if(!exoPlayer.isPlaying){
+            if (!exoPlayer.isPlaying) {
                 exoPlayer.seekTo(new, 0L)
             }
+        }
+
+        if (new > -1) {
+            binding.controller.visibility = View.VISIBLE
+            val color = resources.getColor(R.color.transparent, resources.newTheme())
+            binding.controllerContainer.setBackgroundColor(color)
         }
     }
 
@@ -100,6 +107,7 @@ class FirstFragment : Fragment() {
         // ExoPlayer
         exoPlayer.addListener(playerListener)
         binding.controller.player = exoPlayer
+        binding.controller.visibility = View.INVISIBLE
 
         observeUIState()
         observeSearchFlow()
@@ -161,8 +169,6 @@ class FirstFragment : Fragment() {
                     second = player.isPlaying
                 )
             }
-
-            logEvent(events)
         }
 
         override fun onPositionDiscontinuity(
@@ -174,11 +180,10 @@ class FirstFragment : Fragment() {
 
             val oldIndex = oldPosition.mediaItemIndex
             val newIndex = newPosition.mediaItemIndex
-            val isNext = newIndex == oldIndex + 1
-            val isPrev = newIndex == oldIndex - 1
-
-            if (oldIndex != newIndex && (isNext || isPrev) && !exoPlayer.isPlaying) {
-                exoPlayer.play()
+            if (oldIndex == newIndex && reason == Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT) {
+                if(!exoPlayer.isPlaying){
+                    exoPlayer.play()
+                }
             }
         }
     }
