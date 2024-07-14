@@ -1,13 +1,12 @@
 package anridiaf.playground.simplemusicplayer.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
 import android.widget.Toast
 import androidx.annotation.OptIn
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +21,12 @@ import anridiaf.playground.simplemusicplayer.R
 import anridiaf.playground.simplemusicplayer.databinding.FragmentFirstBinding
 import anridiaf.playground.simplemusicplayer.presenter.SongManagerViewModel
 import anridiaf.playground.simplemusicplayer.presenter.UiState
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.properties.Delegates
@@ -78,6 +83,7 @@ class FirstFragment : Fragment() {
         binding.controller.player = exoPlayer
 
         observeUIState()
+        observeSearchFlow()
     }
 
     override fun onDestroyView() {
@@ -86,7 +92,7 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 
-    private fun observeUIState(){
+    private fun observeUIState() {
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiStateFlow.collect { state ->
@@ -117,16 +123,38 @@ class FirstFragment : Fragment() {
         }
     }
 
+    private val _mutableSearchFlow: MutableSharedFlow<String> = MutableSharedFlow(
+        replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+
+    @kotlin.OptIn(FlowPreview::class)
+    private val _searchFlow: Flow<String>
+        get() = _mutableSearchFlow
+            .debounce(700)
+            .distinctUntilChanged()
+
+    private fun observeSearchFlow() {
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                _searchFlow.collect {
+                    viewModel.filterPlaylist(it)
+                }
+            }
+        }
+    }
+
     private val playerListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
             super.onEvents(player, events)
 
-            if(events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)
+            if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)
                 && events.contains(Player.EVENT_TRACKS_CHANGED)
                 && events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
                 && events.contains(Player.EVENT_POSITION_DISCONTINUITY)
                 && events.contains(Player.EVENT_AVAILABLE_COMMANDS_CHANGED)
-                && events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)){
+                && events.contains(Player.EVENT_MEDIA_METADATA_CHANGED)
+            ) {
 
                 onNextOrPrev = true
             }
@@ -141,7 +169,7 @@ class FirstFragment : Fragment() {
 
         override fun onIsLoadingChanged(isLoading: Boolean) {
             super.onIsLoadingChanged(isLoading)
-            if(onNextOrPrev && !isLoading){
+            if (onNextOrPrev && !isLoading) {
                 exoPlayer.play()
             }
         }
@@ -149,13 +177,15 @@ class FirstFragment : Fragment() {
 
     private val queryListener = object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {
-            viewModel.filterPlaylist(query.orEmpty())
             return false
         }
 
         override fun onQueryTextChange(newText: String?): Boolean {
-            if(newText.isNullOrBlank()){
+            if (newText.isNullOrBlank()) {
+                // For immediate effect without debounce
                 viewModel.filterPlaylist("")
+            } else {
+                _mutableSearchFlow.tryEmit(newText)
             }
 
             return false
