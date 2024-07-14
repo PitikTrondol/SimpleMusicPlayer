@@ -14,6 +14,7 @@ Main feature of player using `ExoPlayer` and its utilities.
 For some reason, playlist still handled independently from Player.
 
 Implemented features:
+ - Gist: https://gist.github.com/PitikTrondol/03c76ce55e73f088372e146055fc9d7e
  - Get playlist from github gist (unfortunately could't find a free music API)
  - Playing automatically on uninterupted
  - Select song and play it
@@ -30,6 +31,9 @@ Implemented features:
  - Currently deployed to Firebase App Distribution with email invitation
  - Github tag created manually
  - Trigger on merge or push to branch `main`
+
+
+
 
 ``
 Sorry to inform you that the player control button is messy when programmatically change its visibility.
