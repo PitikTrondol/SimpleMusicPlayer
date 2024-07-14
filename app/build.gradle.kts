@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     kotlin("plugin.serialization")
+    id("de.mannodermaus.android-junit5")
 }
 
 android {
@@ -16,6 +17,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["runnerBuilder"] = "de.mannodermaus.junit5.AndroidJUnit5Builder"
     }
 
     buildTypes {
@@ -73,7 +75,7 @@ dependencies {
 
     /**
      *  =======================================================================
-     *                          TEST DEPENDENCIES
+     *                         UNIT TEST DEPENDENCIES
      *  =======================================================================
      */
     testImplementation("io.insert-koin:koin-test:$koinVersion")
@@ -81,13 +83,22 @@ dependencies {
 
     val jUniVersion = "5.10.0"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jUniVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$jUniVersion")
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$jUniVersion")
 
     val mockkVersion = "1.12.4"
     testImplementation("io.mockk:mockk:$mockkVersion")
 
     val coroutinesTestVersion = "1.8.1"
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesTestVersion")
+
+    val turbineVersion = "1.1.0"
+    testImplementation("app.cash.turbine:turbine:$turbineVersion")
+
+    /**
+     *  =======================================================================
+     *                         INTEGRATION TEST DEPENDENCIES
+     *  =======================================================================
+     */
 
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
