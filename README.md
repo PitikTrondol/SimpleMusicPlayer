@@ -31,5 +31,9 @@ Implemented features:
  - Github tag created manually
  - Trigger on merge or push to branch `main`
 
+``
+Sorry to inform you that the player control button is messy when programmatically change its visibility.
+Still unsolved.
+``
 
 # Thanks for your attention
