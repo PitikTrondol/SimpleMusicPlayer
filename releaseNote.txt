@@ -1,0 +1,7 @@
+RELEASE NOTE
+
+v0.0.1
+Changelog:
+    - Adjust version name for display in firebase
+    - Add release note
+    - Update Read Me
