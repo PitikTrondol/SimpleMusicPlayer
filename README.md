@@ -1,7 +1,7 @@
 # SimpleMusicPlayer
 
 [![Firebase Distribution](https://github.com/PitikTrondol/SimpleMusicPlayer/actions/workflows/testAndDeploy.yml/badge.svg)](https://github.com/PitikTrondol/SimpleMusicPlayer/actions/workflows/testAndDeploy.yml)
-![GitHub Downloads (specific asset, specific tag)](https://img.shields.io/github/downloads/PitikTrondol/SimpleMusicPlayer/v0.0.1-alpha/app-debug.apk)
+[![GitHub Downloads (specific asset, specific tag)](https://img.shields.io/github/downloads/PitikTrondol/SimpleMusicPlayer/v0.0.1-alpha/app-debug.apk)](https://github.com/PitikTrondol/SimpleMusicPlayer/releases/tag/v0.0.1-alpha)
 
 
 ## Developers
